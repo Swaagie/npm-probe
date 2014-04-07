@@ -1,0 +1,8 @@
+{
+  "nodejitsu": "http://registry.nodejitsu.com/",
+  "strongloop": "http://npm.strongloop.com/",
+  "npmjsau": "http://registry.npmjs.org.au/",
+  "npmjseu": "http://registry.npmjs.eu/",
+  "npmjs": "http://registry.npmjs.org/",
+  "cnpmjs": "http://registry.cnpmjs.org/"
+}
