@@ -1,0 +1,35 @@
+{
+  "name": "npm-probe",
+  "version": "0.0.0",
+  "description": "Probe npm registries for statistics",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha $(find test -name '*.test.js')"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Moveo/npm-probe.git"
+  },
+  "keywords": [
+    "npm",
+    "registry",
+    "ping",
+    "statistics",
+    "replication",
+    "data",
+    "probe"
+  ],
+  "author": "Martijn Swaagman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Moveo/npm-probe/issues"
+  },
+  "homepage": "https://github.com/Moveo/npm-probe",
+  "dependencies": {
+    "async": "~0.6.2",
+    "debug": "~0.8.0",
+    "fusing": "~0.2.1",
+    "node-schedule": "~0.1.13",
+    "pinger": "~0.0.5"
+  }
+}

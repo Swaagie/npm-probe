@@ -1,8 +1,50 @@
 {
-  "nodejitsu": "http://registry.nodejitsu.com/",
-  "strongloop": "http://npm.strongloop.com/",
-  "npmjsau": "http://registry.npmjs.org.au/",
-  "npmjseu": "http://registry.npmjs.eu/",
-  "npmjs": "http://registry.npmjs.org/",
-  "cnpmjs": "http://registry.cnpmjs.org/"
+  "nodejitsu": {
+    "protocol": "http:",
+    "host": "registry.nodejitsu.com",
+    "hostname": "registry.nodejitsu.com",
+    "pathname": "/",
+    "path": "/",
+    "href": "http://registry.nodejitsu.com/"
+  },
+  "strongloop": {
+    "protocol": "http:",
+    "host": "npm.strongloop.com",
+    "hostname": "npm.strongloop.com",
+    "pathname": "/",
+    "path": "/",
+    "href": "http://npm.strongloop.com/"
+  },
+  "npmjsau": {
+    "protocol": "http:",
+    "host": "registry.npmjs.org.au",
+    "hostname": "registry.npmjs.org.au",
+    "pathname": "/",
+    "path": "/",
+    "href": "http://registry.npmjs.org.au/"
+  },
+  "npmjseu": {
+    "protocol": "http:",
+    "host": "registry.npmjs.eu",
+    "hostname": "registry.npmjs.eu",
+    "pathname": "/",
+    "path": "/",
+    "href": "http://registry.npmjs.eu/"
+  },
+  "npmjs": {
+    "protocol": "http:",
+    "host": "registry.npmjs.org",
+    "hostname": "registry.npmjs.org",
+    "pathname": "/",
+    "path": "/",
+    "href": "http://registry.npmjs.org/"
+  },
+  "cnpmjs": {
+    "protocol": "http:",
+    "host": "registry.cnpmjs.org",
+    "hostname": "registry.cnpmjs.org",
+    "pathname": "/",
+    "path": "/",
+    "href": "http://registry.cnpmjs.org/"
+  }
 }
