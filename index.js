@@ -32,6 +32,8 @@ function Collector(options) {
   this.readable('options', options || {});
   this.readable('cache', this.options.cache || null);
   this.readable('registries', require('./registries'));
+
+  this.initialize();
 }
 
 //
@@ -57,7 +59,7 @@ Collector.readable('use', function use(probe) {
 
   return Object.keys(this.registries).map(function map(endpoint) {
     debug('[npm-probe] added probe %s for registry: %s', probe.name, endpoint);
-    collector.emit('collector::scheduled', probe.name, Date.now());
+    collector.emit('probe::scheduled', probe.name, Date.now());
 
     return schedule.scheduleJob(probe.name, probe.spec, function execute() {
       probe.execute(
@@ -86,8 +88,8 @@ Collector.readable('expose', function expose(probe, registry) {
     var end = Date.now();
 
     if (error) {
-      debug('[npm-probe] emit `error` for probe: %s at %s', probe.name, end);
-      return collector.emit('ran', error);
+      debug('[npm-probe] emit `error` for probe: %s/%s at %s', registry, probe.name, end);
+      return collector.emit('probe::error', error);
     }
 
     data = {
@@ -99,15 +101,15 @@ Collector.readable('expose', function expose(probe, registry) {
       duration: end - start
     };
 
-    collector.emit('collector::ran', null, data);
-    collector.emit('collector::ran::' + probe.name, null, data);
+    collector.emit('probe::ran', null, data);
+    collector.emit('probe::ran::' + probe.name, null, data);
     debug('[npm-probe] emit `ran` for probe: %s at %s', probe.name, end);
 
     //
     // Optionally cache the results in provided cache layer.
     //
     if (!collector.cache || 'function' !== typeof collector.cache.set) return;
-    collector.set(collector.key(data), data.results, function done() {
+    collector.cache.set(collector.key(data), data.results, function done() {
       debug('[npm-probe] data cached in key: %s', collector.key(data));
     });
   };
