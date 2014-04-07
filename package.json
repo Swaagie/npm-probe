@@ -4,7 +4,8 @@
   "description": "Probe npm registries for statistics",
   "main": "index.js",
   "scripts": {
-    "test": "mocha $(find test -name '*.test.js')"
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha $(find test -name '*.test.js')",
+    "coverage": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha $(find test -name '*.test.js') --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js || true && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -29,7 +30,16 @@
     "async": "~0.6.2",
     "debug": "~0.8.0",
     "fusing": "~0.2.1",
-    "node-schedule": "~0.1.13",
-    "pinger": "~0.0.5"
+    "node-schedule": "~0.1.13"
+  },
+  "devDependencies": {
+    "chai": "~1.9.0",
+    "coveralls": "~2.8.0",
+    "istanbul": "~0.2.6",
+    "mocha": "~1.18.0",
+    "mocha-lcov-reporter": "~0.0.1",
+    "pre-commit": "~0.0.4",
+    "sinon": "~1.9.1",
+    "sinon-chai": "~2.5.0"
   }
 }
