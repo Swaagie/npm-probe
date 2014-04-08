@@ -1,9 +1,11 @@
 'use strict';
 
 var fs = require('fs')
+  , url = require('url')
   , path = require('path')
   , fuse = require('fusing')
   , async = require('async')
+  , request = require('request')
   , schedule = require('node-schedule')
   , debug = require('debug')('npm-probe');
 
@@ -26,8 +28,9 @@ function Collector(options) {
 
   //
   // Probes will be stored in probe list. Cache is not required, but if available
-  // all data will be stored v
+  // all data will be stored against the provided cache layer.
   //
+  this.writable('feed');
   this.writable('probes', []);
   this.readable('options', options || {});
   this.readable('cache', this.options.cache || null);
@@ -132,13 +135,49 @@ Collector.readable('key', function key(data) {
 });
 
 /**
- * Initialize our probes and push them on the probe stack.
+ * Initialize our probes and push them on the probe stack. Also start the feed
+ * updater. Note: the methodology opts for snapshots versus continuous monitoring.
+ * Not all changes are required for getting the status at a given point in time.
  *
  * @api public
  */
 Collector.readable('initialize', function initialize() {
+  var collector = this
+    , feed = url.format(this.changes);
+
   debug('[npm-probe] initializing with %s probes', this.options.probes.length);
   this.probes = this.probes.concat(this.options.probes.map(this.use.bind(this)));
+
+  //
+  // Update the cached data roughly every 3 minutes.
+  //
+  (function updater() {
+    debug('[npm-probe] updating the feed cache');
+    request(feed, function done(error, response, body) {
+      if (error || response.statusCode !== 200) return setTimeout(updater, 18E4);
+
+      try {
+        collector.feed = JSON.parse(body).results;
+        debug('[npm-probe] succesfully updated the feed cache');
+      } catch(e) { }
+
+      setTimeout(updater, 18E4);
+    });
+  })();
+});
+
+//
+// CouchDB to query for the changes feed.
+//
+Collector.readable('changes', {
+  protocol: 'https:',
+  slashes: true,
+  host: 'skimdb.npmjs.com',
+  hostname: 'skimdb.npmjs.com',
+  search: '?descending=true&limit=25&include_docs=true',
+  query: 'descending=true&limit=25&include_docs=true',
+  pathname: '/registry/_changes',
+  path: '/registry/_changes?descending=true&limit=25&include_docs=true'
 });
 
 //

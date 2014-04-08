@@ -1,8 +1,8 @@
 'use strict';
 
 var url = require('url')
-  , http = require('http')
   , async = require('async')
+  , request = require('request')
   , schedule = require('node-schedule');
 
 //
@@ -21,18 +21,17 @@ exports.spec = {
  * Ping the endpoint by doing a regular request. Not all registries support ICMP by
  * default. Also these surrogate pings will be more meaningful.
  *
- * @param  {[type]}   endpoint [description]
- * @param  {Function} next     [description]
- * @return {[type]}            [description]
+ * @param {Object} endpoint Url parsed registry data
+ * @param {Function} next Completion callback
+ * @api private
  */
 function ping(endpoint, next) {
   var start = Date.now();
 
-  http.request(endpoint, function request(response) {
-    response.on('data', function noop() {}).on('end', function diff() {
-      next(null, Date.now() - start);
-    });
-  }).on('error', next).end();
+  request(endpoint.href, function request(error, response) {
+    if (error || response.statusCode !== 200) return next(new Error('ping failed'));
+    next(null, Date.now() - start);
+  });
 }
 
 /**

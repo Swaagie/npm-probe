@@ -30,7 +30,8 @@
     "async": "~0.6.2",
     "debug": "~0.8.0",
     "fusing": "~0.2.1",
-    "node-schedule": "~0.1.13"
+    "node-schedule": "~0.1.13",
+    "request": "~2.34.0"
   },
   "devDependencies": {
     "chai": "~1.9.0",
