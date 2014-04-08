@@ -62,7 +62,7 @@ exports.calc = function calc(data) {
   var mean = data.reduce(function sum(a, b) {
     return a + b;
   }, 0) / data.length;
-console.log(data);
+
   return {
     mean: mean,
     minimum: Math.min.apply(null, data),
