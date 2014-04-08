@@ -15,10 +15,11 @@ describe('Probe: ping', function () {
   });
 
   it('has specifications to ping endpoint every 10 seconds', function () {
-    expect(ping.spec).to.have.property('second');
-    expect(ping.spec.second).to.be.an('array');
-    expect(ping.spec.second).to.include(0);
-    expect(ping.spec.second).to.include(30);
+    expect(ping.spec).to.have.property('minute');
+    expect(ping.spec.minute).to.be.an('object');
+    expect(ping.spec.minute).to.have.property('start', 0);
+    expect(ping.spec.minute).to.have.property('end', 60);
+    expect(ping.spec.minute).to.have.property('step', 3);
   });
 
   it('returns the pingtime to host in milleseconds', function (done) {
@@ -28,8 +29,8 @@ describe('Probe: ping', function () {
       expect(results).to.be.an('object');
       expect(results).to.have.property('minimum');
       expect(results).to.have.property('maximum');
-      expect(results).to.have.property('deviation');
-      expect(results).to.have.property('average');
+      expect(results).to.have.property('stdev');
+      expect(results).to.have.property('mean');
 
       for (var key in results) {
         expect(results[key]).to.be.an('number');
