@@ -3,7 +3,6 @@
 var url = require('url')
   , async = require('async')
   , request = require('request')
-  , diff = require('objectdiff')
   , schedule = require('node-schedule');
 
 //
@@ -17,6 +16,11 @@ exports.name = 'delta';
 exports.spec = {
   minute: new schedule.Range(0, 60, 10)
 };
+
+//
+// List of registries the probe should be run against.
+//
+exports.list = Object.keys(require('../registries'));
 
 //
 // Set of functions to check the equality of a and b for set of keys.

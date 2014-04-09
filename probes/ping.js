@@ -11,7 +11,12 @@ var url = require('url')
 exports.name = 'ping';
 
 //
-// Specifications when the probe should be run. Ping will be ran every 3 minutes.
+// List of registries the probe should be run against.
+//
+exports.list = Object.keys(require('../registries'));
+
+//
+// Ping the mirrors every 3 minutes.
 //
 exports.spec = {
   minute: new schedule.Range(0, 60, 3)

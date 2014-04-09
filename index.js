@@ -12,7 +12,8 @@ var fs = require('fs')
 //
 // Base path for all default probes.
 //
-var base = path.join(__dirname, 'probes');
+var base = path.join(__dirname, 'probes')
+  , registries = require('./registries');
 
 /**
  * Collector instance, can be provided with following options.
@@ -34,7 +35,6 @@ function Collector(options) {
   this.writable('probes', []);
   this.readable('options', options || {});
   this.readable('cache', this.options.cache || null);
-  this.readable('registries', require('./registries'));
 
   this.initialize();
 }
@@ -60,14 +60,14 @@ Collector.readable('use', function use(probe) {
   //
   if (!probe.name || !probe.spec || 'function' !== typeof probe.execute) return;
 
-  return Object.keys(this.registries).map(function map(endpoint) {
+  return probe.list.map(function map(endpoint) {
     debug('[npm-probe] added probe %s for registry: %s', probe.name, endpoint);
     collector.emit('probe::scheduled', probe.name, Date.now());
 
     return schedule.scheduleJob(probe.name, probe.spec, function execute() {
       probe.execute(
         collector,
-        collector.registries[endpoint],
+        registries[endpoint],
         collector.expose(probe, endpoint)
       );
     });
