@@ -15,7 +15,7 @@ exports.name = 'delta';
 // Delta on latest 25 feeds will be ran every 10 minutes.
 //
 exports.spec = {
-  minute: new schedule.Range(0, 60, 10)
+ minute: new schedule.Range(0, 60, 10)
 };
 
 //
@@ -67,12 +67,12 @@ exports.equal = {
  * @param {Boolean} equal Calculate difference from perspective of equality.
  * @param {Object} origin Module document from original feed.
  * @param {Object} variation Module document from target registry.
- * @return {Number} Absolute lag in msec
+ * @return {Object} Module name and its absolute lag in msec
  * @api private
  */
 exports.lag = function lag(equal, origin, variation) {
-  var main = 0
-    , mirror = 0;
+  var mirror = 0
+    , main = 0;
 
   //
   // If the document for the target npm mirror is missing, registry has lag equal
@@ -91,9 +91,12 @@ exports.lag = function lag(equal, origin, variation) {
   }
 
   //
-  // Return absolute lag in msec, the value has to be absoluted
+  // Return absolute lag in msec.
   //
-  return Math.abs(mirror - main);
+  return {
+    module: origin.name,
+    lag: Math.abs(mirror - main)
+  };
 };
 
 /**
@@ -122,6 +125,18 @@ exports.diff = function diff(origin, variation) {
 };
 
 /**
+ * Check for error responses in the body. This is required since not all 404's or
+ * errors can be blindly treated as a missing document.
+ *
+ * @param {String} body Content to be checked.
+ * @return {Boolean} body has error
+ */
+exports.error = function(body) {
+  return ~body.indexOf('"error":"not_found"')
+      || ~body.indexOf('"error":"illegal_database_name"');
+};
+
+/**
  * Check the last changes feed against each mirror registry.
  *
  * @param {Collector} collector instance.
@@ -131,19 +146,37 @@ exports.diff = function diff(origin, variation) {
  */
 exports.execute = function execute(collector, endpoint, done) {
   async.map(collector.feed, function get(module, next) {
-    endpoint.pathname = '/' + module.id;
+    var target = url.format({
+      protocol: endpoint.protocol,
+      pathname: endpoint.pathname + '/' + module.id,
+      host: endpoint.host
+    });
 
     //
     // Fetch documents, ignore errors by setting the body to an empty JSON
     // object representation, mapping should continue for other modules.
     // Deleted modules will respond with statusCode = 404, so ignore that as well.
     //
-    request(url.format(endpoint), function get(error, response, body) {
-      if (error || ~body.indexOf('"error":"not_found"')) body = null;
+    request(target, function get(error, response, body) {
+      if (error || (response.statusCode !== 200 && exports.error(body))) body = null;
       next(null, exports.diff(module.doc, body));
     });
   }, function calc(error, result) {
     if (error) return done(error);
-    done(null, collector.calculate(result));
+    var filtered = []
+      , lag = [];
+
+    //
+    // Store the names of the modules the are lagging.
+    //
+    result.forEach(function each(test) {
+      if (test.lag > 0) filtered.push(test.module);
+      lag.push(test.lag);
+    });
+
+    done(null, {
+      modules: filtered,
+      lag: collector.calculate(lag)
+    });
   });
 };
