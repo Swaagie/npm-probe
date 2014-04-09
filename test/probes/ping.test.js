@@ -2,6 +2,7 @@ describe('Probe: ping', function () {
   'use strict';
 
   var common = require('../common')
+    , Collector = common.Collector
     , expect = common.expect
     , registries = common.registries
     , ping = require('../../probes/ping');
@@ -24,7 +25,7 @@ describe('Probe: ping', function () {
 
   it('returns the pingtime to host in milleseconds', function (done) {
     this.timeout(2E4); // Spawning a child process takes some time.
-    ping.execute({}, registries.nodejitsu, function (error, results) {
+    ping.execute(new Collector, registries.nodejitsu, function (error, results) {
       expect(error).to.equal(null);
       expect(results).to.be.an('object');
       expect(results).to.have.property('minimum');

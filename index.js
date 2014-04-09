@@ -143,27 +143,60 @@ Collector.readable('key', function key(data) {
  */
 Collector.readable('initialize', function initialize() {
   var collector = this
+    , probes = collector.options.probes
     , feed = url.format(this.changes);
 
-  debug('[npm-probe] initializing with %s probes', this.options.probes.length);
-  this.probes = this.probes.concat(this.options.probes.map(this.use.bind(this)));
-
   //
-  // Update the cached data roughly every 3 minutes.
+  // Update the cached data every 3 minutes.
   //
-  (function updater() {
+  (function updater(init) {
     debug('[npm-probe] updating the feed cache');
+
     request(feed, function done(error, response, body) {
-      if (error || response.statusCode !== 200) return setTimeout(updater, 18E4);
+      if (error || response.statusCode !== 200) {
+        return collector.emit('error', new Error('[npm-probe] failed to updated feed'));
+      }
 
       try {
         collector.feed = JSON.parse(body).results;
         debug('[npm-probe] succesfully updated the feed cache');
-      } catch(e) { }
+      } catch(e) { collector.emit('error', e); }
+
+      //
+      // Add the probes only on the first run after a succeful cache feed.
+      //
+      if (init) {
+        debug('[npm-probe] initializing with %s probes', probes.length);
+        Array.prototype.push.apply(collector.probes, probes.map(function map(probe) {
+          return collector.use(probe);
+        }));
+      }
 
       setTimeout(updater, 18E4);
     });
-  })();
+  })(true);
+});
+
+/**
+ * Calculate min, max, avg and stdev from the array of request times.
+ *
+ * @param {Array} data Request times.
+ * @return {Object} Minimum, maximum, average and standard deviation
+ * @api public
+ */
+Collector.readable('calculate', function calculate(data) {
+  var mean = data.reduce(function sum(a, b) {
+    return a + b;
+  }, 0) / data.length;
+
+  return {
+    mean: mean,
+    minimum: Math.min.apply(null, data),
+    maximum: Math.max.apply(null, data),
+    stdev: Math.sqrt(data.reduce(function deviation(dev, current) {
+      return dev + Math.pow(current - mean, 2);
+    }, 0) / (data.length - 1))
+  };
 });
 
 //

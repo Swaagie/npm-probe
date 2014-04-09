@@ -46,28 +46,6 @@ exports.execute = function execute(collector, endpoint, done) {
   endpoint = [endpoint, endpoint, endpoint, endpoint, endpoint];
   async.map(endpoint, ping, function calc(error, result) {
     if (error) return done(error);
-    done(null, exports.calc(result));
+    done(null, collector.calculate(result));
   });
-};
-
-/**
- * Calculate min, max, avg and stdev from the array of request times.
- *
- * @param {Array} data Request times.
- * @return {Object} Minimum, maximum, average and standard deviation
- * @api public
- */
-exports.calc = function calc(data) {
-  var mean = data.reduce(function sum(a, b) {
-    return a + b;
-  }, 0) / data.length;
-
-  return {
-    mean: mean,
-    minimum: Math.min.apply(null, data),
-    maximum: Math.max.apply(null, data),
-    stdev: Math.sqrt(data.reduce(function deviation(dev, current) {
-      return dev + Math.pow(current - mean, 2);
-    }, 0) / (data.length - 1))
-  };
 };
