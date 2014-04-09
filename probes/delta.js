@@ -15,7 +15,7 @@ exports.name = 'delta';
 // Delta on latest 25 feeds will be ran every 10 minutes.
 //
 exports.spec = {
- minute: new schedule.Range(0, 60, 10)
+  minute: new schedule.Range(0, 60, 10)
 };
 
 //
@@ -148,7 +148,7 @@ exports.execute = function execute(collector, endpoint, done) {
   async.map(collector.feed, function get(module, next) {
     var target = url.format({
       protocol: endpoint.protocol,
-      pathname: endpoint.pathname + '/' + module.id,
+      pathname: endpoint.pathname + module.id,
       host: endpoint.host
     });
 

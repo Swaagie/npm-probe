@@ -38,13 +38,13 @@
   "fullfat": {
     "protocol": "https:",
     "host": "fullfatdb.npmjs.com",
-    "pathname": "/registry",
+    "pathname": "/registry/",
     "href": "https://fullfatdb.npmjs.com/registry"
   },
   "iriscouch": {
     "protocol": "https:",
     "host": "isaacs.iriscouch.com",
-    "pathname": "/registry",
+    "pathname": "/registry/",
     "href": "https://isaacs.iriscouch.com/registry"
   }
 }
