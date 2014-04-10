@@ -94,7 +94,6 @@ Probe.readable('execute', function execute(endpoint, done) {
         //
         result.start = Date.now();
         npm.commands.publish(args, function published(error) {
-          console.log(error);
           result = probe.process(error, result);
 
           probe.emit('publish::executed', result);
