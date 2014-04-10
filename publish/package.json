@@ -1,0 +1,8 @@
+{
+  "name": "npm-publish-probe",
+  "version": "2014.100.4",
+  "description": "Surrogate package that will be published by npm-probe",
+  "main": "index.js",
+  "author": "Martijn Swaagman",
+  "license": "MIT"
+}
