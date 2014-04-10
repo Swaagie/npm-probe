@@ -51,13 +51,15 @@ fuse(Collector, require('events').EventEmitter);
  * @return {Array} List of probes that can be added to the stack.
  * @api public
  */
-Collector.readable('use', function use(probe) {
-  var collector = this;
+Collector.readable('use', function use(Probe) {
+  var collector = this
+    , probe;
 
   //
   // Any provided probe should have a valid name, specification and function to
   // execute. Simply ignore probes which are invalid.
   //
+  probe = new Probe(collector);
   if (!probe.name || !probe.spec || 'function' !== typeof probe.execute) return;
 
   return probe.list.map(function map(endpoint) {
@@ -65,11 +67,7 @@ Collector.readable('use', function use(probe) {
     collector.emit('probe::scheduled', probe.name, Date.now());
 
     return schedule.scheduleJob(probe.name, probe.spec, function execute() {
-      probe.execute(
-        collector,
-        registries[endpoint],
-        collector.expose(probe, endpoint)
-      );
+      probe.execute(registries[endpoint], collector.expose(probe, endpoint));
     });
   });
 });

@@ -5,7 +5,16 @@ describe('Probe: ping', function () {
     , Collector = common.Collector
     , expect = common.expect
     , registries = common.registries
-    , ping = require('../../probes/ping');
+    , Ping = require('../../probes/ping')
+    , ping;
+
+  beforeEach(function () {
+    ping = new Ping(new Collector);
+  });
+
+  afterEach(function () {
+    ping = null;
+  });
 
   it('exposes properties name, spec and execute', function () {
     expect(ping).to.have.property('name', 'ping');
@@ -25,7 +34,7 @@ describe('Probe: ping', function () {
 
   it('returns the pingtime to host in milleseconds', function (done) {
     this.timeout(2E4); // Spawning a child process takes some time.
-    ping.execute(new Collector, registries.nodejitsu, function (error, results) {
+    ping.execute(registries.nodejitsu, function (error, results) {
       expect(error).to.equal(null);
       expect(results).to.be.an('object');
       expect(results).to.have.property('minimum');
