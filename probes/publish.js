@@ -1,7 +1,6 @@
 'use strict';
 
 var fs = require('fs')
-  , url = require('url')
   , npm = require('npm')
   , path = require('path')
   , fuse = require('fusing')
@@ -85,7 +84,10 @@ Probe.readable('execute', function execute(endpoint, done) {
         //
         result.start = Date.now();
         npm.commands.publish([ probe.map ], function published(error) {
-          done(error, probe.process(error, result));
+          result = probe.process(error, result);
+
+          probe.emit('publish::executed', result);
+          done(error, result);
         });
       });
     });
