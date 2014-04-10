@@ -18,18 +18,20 @@ function Probe(collector) {
   this.fuse();
 
   //
+  // Add _auth if username and password are provided via options.
+  //
+  var config = collector.options.npm || { loglevel: 'silent' };
+  if (config.username && config.password) {
+    config._auth = new Buffer(config.username +':'+ config.password).toString('base64');
+  }
+
+  //
   // Name of the probe and the registries the probe should run against.
   //
   this.readable('name', 'publish');
+  this.readable('list', ['npmjs']);
+  this.readable('config', config);
   this.readable('collector', collector);
-  this.readable('list', [ 'npmjs' ]);
-
-  //
-  // Configure npm to be silent and add user details.
-  //
-  this.readable('config', collector.options.npm || {
-    loglevel: 'silent'
-  });
 
   //
   // References to the test package that will be published.
@@ -58,17 +60,7 @@ fuse(Probe, require('events').EventEmitter);
  */
 Probe.readable('execute', function execute(endpoint, done) {
   var result = {}
-    , probe = this
-    , args = [ this.map ]
-    , auth;
-
-  //
-  // Add authorization arugment if provided via options/config.
-  //
-  if (this.config.username && this.config.password) {
-    auth = new Buffer(this.config.username + ':' + this.config.password, 'utf8');
-    args.push('--_auth=' + auth.toString('base64'));
-  }
+    , probe = this;
 
   //
   // Configure npm, read the package and update.
@@ -93,7 +85,7 @@ Probe.readable('execute', function execute(endpoint, done) {
         // Start measuring publish time.
         //
         result.start = Date.now();
-        npm.commands.publish(args, function published(error) {
+        npm.commands.publish([ probe.map ], function published(error) {
           result = probe.process(error, result);
 
           probe.emit('publish::executed', result);
