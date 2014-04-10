@@ -110,7 +110,7 @@ Collector.readable('expose', function expose(probe, registry) {
     // Optionally cache the results in provided cache layer.
     //
     if (!collector.cache || 'function' !== typeof collector.cache.set) return;
-    collector.cache.set(collector.key(data), data.results, function done() {
+    collector.cache.set(collector.key(data), data, function done() {
       debug('[npm-probe] data cached in key: %s', collector.key(data));
     });
   };

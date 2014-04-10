@@ -58,7 +58,17 @@ fuse(Probe, require('events').EventEmitter);
  */
 Probe.readable('execute', function execute(endpoint, done) {
   var result = {}
-    , probe = this;
+    , probe = this
+    , args = [ this.map ]
+    , auth;
+
+  //
+  // Add authorization arugment if provided via options/config.
+  //
+  if (this.config.username && this.config.password) {
+    auth = new Buffer(this.config.username + ':' + this.config.password, 'utf8');
+    args.push('--_auth=' + auth.toString('base64'));
+  }
 
   //
   // Configure npm, read the package and update.
@@ -83,7 +93,8 @@ Probe.readable('execute', function execute(endpoint, done) {
         // Start measuring publish time.
         //
         result.start = Date.now();
-        npm.commands.publish([ probe.map ], function published(error) {
+        npm.commands.publish(args, function published(error) {
+          console.log(error);
           result = probe.process(error, result);
 
           probe.emit('publish::executed', result);
