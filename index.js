@@ -36,6 +36,10 @@ function Collector(options) {
   this.readable('options', options || {});
   this.readable('cache', this.options.cache || null);
 
+  //
+  // Add optional error event listener provided via options.
+  //
+  if (options.error) this.on('error', options.error);
   this.initialize();
 }
 
