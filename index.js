@@ -106,7 +106,7 @@ Collector.readable('expose', function expose(probe, registry) {
       duration: end - start
     };
 
-    collector.emit('probe::ran', null, probe.name, data);
+    collector.emit('probe::ran', null, data);
     collector.emit('probe::ran::' + probe.name, null, data);
     debug('[npm-probe] emit `ran` for probe: %s at %s', probe.name, end);
 
