@@ -39,7 +39,7 @@ function Collector(options) {
   //
   // Add optional error event listener provided via options.
   //
-  if (options.error) this.on('error', options.error);
+  if (this.options.error) this.on('error', this.options.error);
   this.initialize();
 }
 
