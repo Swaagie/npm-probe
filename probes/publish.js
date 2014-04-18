@@ -113,7 +113,7 @@ Probe.readable('update', function update(specs) {
   // days that have passed since the beginning of the year.
   //
   specs = JSON.parse(specs)['dist-tags'].latest.split('.').map(Number);
-  days = Math.ceil((now - new Date(specs[0], 0 , 1)) / 864E5);
+  days = Math.ceil((now - new Date(specs[0], 0, 1)) / 864E5);
 
   //
   // Update the processed data where the semver will follow
