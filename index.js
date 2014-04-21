@@ -90,7 +90,8 @@ Collector.readable('expose', function expose(probe, registry) {
 
   debug('[npm-probe] provide callback for probe: %s at %s', probe.name, start);
   return function ran(error, data) {
-    var end = Date.now();
+    var end = Date.now()
+      , clone;
 
     if (error) {
       debug('[npm-probe] emit `error` for probe: %s/%s at %s', registry, probe.name, end);
@@ -106,8 +107,12 @@ Collector.readable('expose', function expose(probe, registry) {
       duration: end - start
     };
 
-    collector.emit('probe::ran', null, data);
-    collector.emit('probe::ran::' + probe.name, null, data);
+    //
+    // Clone before emitting, so external listeners cannot polute data storage.
+    //
+    clone = JSON.parse(JSON.stringify(data));
+    collector.emit('probe::ran', null, clone);
+    collector.emit('probe::ran::' + probe.name, null, clone);
     debug('[npm-probe] emit `ran` for probe: %s at %s', probe.name, end);
 
     //
