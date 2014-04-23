@@ -19,6 +19,7 @@ var base = path.join(__dirname, 'probes')
  * Collector instance, can be provided with following options.
  *  - probes {Array}: probes to use
  *  - cache {Object}: cache instance on which set(key, value, ttl) can be called
+ *  - silent {Boolean}: if true do not aquire data
  *
  * @constructor
  * @param {Object} options
@@ -149,9 +150,9 @@ Collector.readable('key', function key(data) {
  * @api public
  */
 Collector.readable('initialize', function initialize() {
-  var collector = this
-    , probes = collector.options.probes
-    , feed = url.format(this.changes);
+  var feed = url.format(this.changes)
+    , probes = this.options.probes
+    , collector = this;
 
   //
   // Update the cached data every 3 minutes.
@@ -181,7 +182,7 @@ Collector.readable('initialize', function initialize() {
 
       setTimeout(updater, 18E4);
     });
-  })(true);
+  })(process.env.PROBE !== 'silent' && !this.options.silent);
 });
 
 /**

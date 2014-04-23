@@ -3,6 +3,24 @@ npm-probe
 
 Probe npm registries for statistics
 
+### Usage
+
+Instantiate a new npm-probe instance which will collect statistics from npm
+registries and mirrors. If you'd like to run the instance without actively
+gathering data, provide the flag `silent: true`.
+
+```
+var Collector = require('npm-probe');
+  , collector = new Collector({
+      npm: nodejitsu.config.get('npm'),
+      probes: [ Collector.probes.ping ],
+      silent: false
+    });
+```
+
+Active execution of the probes can be prevented by setting the following
+environment variable: `PROBE=silent`. This allows you to use the collector as
+static instance to access cache or other methods.
 
 ### Probes
 
