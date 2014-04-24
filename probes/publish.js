@@ -7,6 +7,11 @@ var fs = require('fs')
   , request = require('request')
   , schedule = require('node-schedule');
 
+//
+// Time interval for the probe.
+//
+var interval  = 36E4;
+
 /**
  * Probe constructor.
  *
@@ -45,7 +50,7 @@ function Probe(collector) {
   // Publish the test module every 6 minutes.
   //
   this.readable('spec', {
-    minute: new schedule.Range(0, 60, 6)
+    minute: new schedule.Range(0, 60, interval / 6E4)
   });
 }
 
@@ -148,4 +153,5 @@ Probe.readable('process', function process(error, result) {
 //
 // Export the probe.
 //
+Probe.interval = interval;
 module.exports = Probe;

@@ -24,12 +24,12 @@ describe('Probe: ping', function () {
     expect(ping.execute).to.be.a('function');
   });
 
-  it('has specifications to ping endpoint every 10 seconds', function () {
+  it('has specifications to ping endpoint every 1 minute', function () {
     expect(ping.spec).to.have.property('minute');
     expect(ping.spec.minute).to.be.an('object');
     expect(ping.spec.minute).to.have.property('start', 0);
     expect(ping.spec.minute).to.have.property('end', 60);
-    expect(ping.spec.minute).to.have.property('step', 3);
+    expect(ping.spec.minute).to.have.property('step', 1);
   });
 
   it('returns the pingtime to host in milleseconds', function (done) {

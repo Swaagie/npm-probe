@@ -24,10 +24,10 @@ function Probe(collector) {
   this.readable('list', Object.keys(require('../registries')));
 
   //
-  // Ping the mirrors every 3 minutes.
+  // Ping the mirrors every minute.
   //
   this.readable('spec', {
-    minute: new schedule.Range(0, 60, 3)
+    minute: new schedule.Range(0, 60, 1)
   });
 }
 
@@ -42,10 +42,17 @@ fuse(Probe, require('events').EventEmitter);
  * @api private
  */
 Probe.readable('ping', function ping(endpoint, next) {
-  var start = Date.now();
+  var start = Date.now()
+    , timeout = 3E4;
 
-  request(endpoint.href, function request(error, response) {
+  request({ uri: endpoint.href, timeout: timeout }, function resp(error, response) {
+    //
+    // If the registry takes longer than the allowed timeout, return 0.
+    // Theoretically this lag is impossible, allowing it to be processed correctly.
+    //
+    if (error && error.code === 'ETIMEDOUT') return next(null, 0);
     if (error || response.statusCode !== 200) return next(new Error('ping failed'));
+
     next(null, Date.now() - start);
   });
 });
