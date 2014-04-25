@@ -243,14 +243,29 @@ Collector.readable('group', function group(interval, categorize, base) {
 });
 
 /**
- * Helper function to return default transformation functions per data type.
+ * Helper function to call the correct data function.
  *
+ * @param {String} method
  * @param {String} type Name of data type.
- * @returns {Function}
+ * @param {Mixed} arguments multiple additional arguments
+ * @returns {Mixed} results of data method.
+ * @api public
  */
-Collector.readable('transform', function transform(type) {
+Collector.readable('data', function data(method, type) {
+  method = this[method](type);
   type = Collector.probes[type];
-  return this.group(type.group, type.transform, type.map);
+
+  switch (method) {
+    case 'transform':
+      method = this.group(type.group, type.transform, type.map);
+    break;
+
+    case 'latest':
+      method = type.latest;
+    break;
+  }
+
+  return method.apply(this, Array.prototype.slice.apply(arguments, 2));
 });
 
 /**
