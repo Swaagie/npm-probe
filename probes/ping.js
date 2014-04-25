@@ -77,6 +77,44 @@ Probe.readable('execute', function execute(endpoint, done) {
   });
 });
 
+/**
+ * Calculate the moving average for the provided data with n steps.
+ * Defaults to 5 steps.
+ *
+ * @param {Number} n Amount of steps.
+ * @return {Array} Moving average per step.
+ * @api private
+ */
+Probe.transform = function transform(memo, probe, i, stack) {
+  var keys = Object.keys(stack)
+    , k = i - 5;
+
+  while (++k < i) {
+    for (var data in probe.results) {
+      memo[data] = memo[data] || probe.results[data] / 5;
+      memo[data] += stack[k > 0 ? k : 0].results[data] / 5;
+    }
+  }
+
+  return memo;
+};
+
+/**
+ * Group functionality by time, this will group per millisecond or the actual time.
+ *
+ * @param {Number} time Unix timestamp.
+ * @returns {Date}
+ * @api public
+ */
+Probe.group = function group(time) {
+  return time;
+};
+
+//
+// Default stack to map and process results.
+//
+Probe.map = {};
+
 //
 // Export the probe.
 //

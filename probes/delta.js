@@ -6,6 +6,18 @@ var url = require('url')
   , request = require('request')
   , schedule = require('node-schedule');
 
+//
+// Time interval for the probe and interval cutoffs in milliseconds.
+//
+var day = 864E5
+  , interval = 6E5
+  , intervals = {
+      none: 0,
+      hour: day / 24,
+      day: day,
+      "week⁺": 7 * day
+    };
+
 /**
  * Probe constructor.
  *
@@ -27,7 +39,7 @@ function Probe(collector) {
   // Delta on latest 25 feeds will be ran every 10 minutes.
   //
   this.readable('spec', {
-    minute: new schedule.Range(0, 60, 10)
+    minute: new schedule.Range(0, 60, interval / 6E4)
   });
 }
 
@@ -195,6 +207,83 @@ Probe.readable('execute', function execute(endpoint, done) {
     done(null, result);
   });
 });
+
+/**
+ * Seperate time units into intervals.
+ *
+ * @param {Array} memo Container to store results in.
+ * @param {Object} probe Results from probe.
+ * @return {Object} altered memo.
+ * @api private
+ */
+Probe.transform = function transform(memo, probe, i, stack) {
+  var position = Object.keys(intervals)
+    , interval
+    , days;
+
+  //
+  // Return duration as string for results.
+  //
+  position.forEach(function each(key, i) {
+    if (!probe.results || !probe.results.lag) return;
+
+    //
+    // Provide all intervals on the same day with summed hours count.
+    //
+    memo[i].days += days || probe.results.lag.mean / 864E5;
+
+    //
+    // Current found interval is correct, stop processing before updating again.
+    //
+    if (interval) return;
+    if (probe.results.lag.mean <= intervals[key]) interval = i;
+  });
+
+  //
+  // Update the occurence of the interval and add the modules for reference.
+  //
+  if (!interval) interval = position.length - 1;
+  memo[interval].n++;
+
+  if (Array.isArray(probe.results.modules)) {
+    Array.prototype.push.apply(
+      memo[interval].modules,
+      probe.results.modules.map(function map(module) {
+        if (!~memo[interval].modules.indexOf(module)) return module;
+      }).filter(Boolean)
+    );
+  }
+
+  return memo;
+};
+
+/**
+ * Group functionality by time, this will group per day.
+ *
+ * @param {Number} time Unix timestamp.
+ * @returns {Date}
+ * @api public
+ */
+Probe.group = function group(time) {
+  return new Date(time).setHours(0, 0, 0, 0);
+};
+
+//
+// Default stack to map and process results.
+//
+Probe.map = Object.keys(intervals).map(function map(key) {
+  return {
+    modules: [],
+    type: key,
+    days: 0,
+    n: 0
+  };
+});
+
+//
+// Expose the intervals that are used by default.
+//
+Probe.intervals = intervals;
 
 //
 // Export the probe.

@@ -10,7 +10,7 @@ var fs = require('fs')
 //
 // Time interval for the probe.
 //
-var interval  = 36E4;
+var interval = 36E4;
 
 /**
  * Probe constructor.
@@ -150,8 +150,61 @@ Probe.readable('process', function process(error, result) {
   return result;
 });
 
+/**
+ * Calculate percentage of completed publishes per day.
+ *
+ * @param {Array} memo Container to store results in.
+ * @param {Object} probe Results from probe.
+ * @return {Object} altered memo.
+ * @api private
+ */
+Probe.transform = function transform(memo, probe, i, stack) {
+  var day = new Date().setHours(0, 0, 0, 0)
+    , diff = probe.start > day ? probe.start - day : 864E5
+    , done = Math.floor(diff / interval)
+    , state = +probe.results.published;
+
+  //
+  // d3 will expect two values (e.g. success and failure rate) per day,
+  // keep track of the latest publish probe state on both stacks.
+  //
+  if (done > memo[state].total) memo[0].total = memo[1].total = done;
+
+  memo[state].n++;
+  memo[state].percentage = Math.round(memo[state].n / memo[state].total * 100);
+
+  //
+  // Store the success percentage on failure to set lower bound.
+  //
+  memo[0].lower = memo[1].percentage;
+  return memo;
+};
+
+/**
+ * Group functionality by time, this will group per day.
+ *
+ * @param {Number} time Unix timestamp.
+ * @returns {Date}
+ * @api public
+ */
+Probe.group = function group(time) {
+  return new Date(time).setHours(0, 0, 0, 0);
+};
+
+//
+// Default stack to map and process results.
+//
+Probe.map = ['failure', 'success'].map(function map(key) {
+  return {
+    percentage: 0,
+    type: key,
+    lower: 0,
+    total: 0,
+    n: 0,
+  };
+});
+
 //
 // Export the probe.
 //
-Probe.interval = interval;
 module.exports = Probe;

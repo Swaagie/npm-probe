@@ -53,7 +53,7 @@ fuse(Collector, require('events').EventEmitter);
  * Register a probe to be used against the known registries.
  *
  * @param {Object} probe Valid probe object having name, spec and execute as keys.
- * @return {Array} List of probes that can be added to the stack.
+ * @returns {Array} List of probes that can be added to the stack.
  * @api public
  */
 Collector.readable('use', function use(Probe) {
@@ -82,7 +82,7 @@ Collector.readable('use', function use(Probe) {
  *
  * @param {Object} probe details of probe to be executed
  * @param {Object} endpoint name of the endpoint, e.g. nodejitsu
- * @return {Function} callback to be called
+ * @returns {Function} callback to be called
  * @api private
  */
 Collector.readable('expose', function expose(probe, registry) {
@@ -131,7 +131,7 @@ Collector.readable('expose', function expose(probe, registry) {
  * the following data: `data.registry / data.name / data.start`.
  *
  * @param {Object} data
- * @return {String} key name based on data
+ * @returns {String} key name based on data
  * @api public
  */
 Collector.readable('key', function key(data) {
@@ -189,7 +189,7 @@ Collector.readable('initialize', function initialize() {
  * Calculate min, max, avg and stdev from the array of request times.
  *
  * @param {Array} data Request times.
- * @return {Object} Minimum, maximum, average and standard deviation
+ * @returns {Object} Minimum, maximum, average and standard deviation
  * @api public
  */
 Collector.readable('calculate', function calculate(data) {
@@ -205,6 +205,63 @@ Collector.readable('calculate', function calculate(data) {
       return dev + Math.pow(current - mean, 2);
     }, 0) / (data.length - 1))
   };
+});
+
+/**
+ * Group by categorize per day, day equals the day number of the year.
+ *
+ * @param {Function} interval Return time interval based on probe start.
+ * @param {Function} categorize Determine category by mapReduce.
+ * @param {Mixed} base Result stack data layout.
+ * @returns {Function} Runs the actual grouping.
+ * @api public
+ */
+Collector.readable('group', function group(interval, categorize, base) {
+  var collector = this;
+
+  return function execute(data) {
+    var result = data.reduce(function reduce(memo, probe, i) {
+      var t = interval(probe.start);
+
+      memo[t] = memo[t] || collector.clone(base);
+      memo[t] = categorize(memo[t], probe, i, data);
+      return memo;
+    }, {});
+
+    //
+    // Return a flat array with results per interval transformed with categorize.
+    //
+    return Object.keys(result).reduce(function maptoarray(stack, t) {
+      var items = Array.isArray(result[t])
+        ? result[t].map(function map(item) { return { t: t, values: item}; })
+        : [{ t: t, values: result[t] }];
+
+      Array.prototype.push.apply(stack, items);
+      return stack;
+    }, []);
+  };
+});
+
+/**
+ * Helper function to return default transformation functions per data type.
+ *
+ * @param {String} type Name of data type.
+ * @returns {Function}
+ */
+Collector.readable('transform', function transform(type) {
+  type = Collector.probes[type];
+  return this.group(type.group, type.transform, type.map);
+});
+
+/**
+ * Basic cloning functionality to prevent mixing of results.
+ *
+ * @param {Mixed} input Object to clone.
+ * @returns {Mixed} cloned input
+ * @api public
+ */
+Collector.readable('clone', function clone(input) {
+  return JSON.parse(JSON.stringify(input));
 });
 
 //
