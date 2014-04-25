@@ -100,6 +100,18 @@ Probe.transform = function transform(memo, probe, i, stack) {
 };
 
 /**
+ * Return custom content to be displayed as latest measurement.
+ *
+ * @param {Array} transformed Data transformed with transform
+ * @param {Array} plain Orginal data.
+ * @returns {Object}
+ * @api private
+ */
+Probe.latest = function latest(transformed, plain) {
+  return transformed[transformed.length - 1];
+};
+
+/**
  * Group functionality by time, this will group per millisecond or the actual time.
  *
  * @param {Number} time Unix timestamp.

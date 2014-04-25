@@ -251,8 +251,7 @@ Collector.readable('group', function group(interval, categorize, base) {
  * @returns {Mixed} results of data method.
  * @api public
  */
-Collector.readable('data', function data(method, type) {
-  method = this[method](type);
+Collector.readable('run', function run(method, type) {
   type = Collector.probes[type];
 
   switch (method) {
@@ -265,7 +264,7 @@ Collector.readable('data', function data(method, type) {
     break;
   }
 
-  return method.apply(this, Array.prototype.slice.apply(arguments, 2));
+  return method.apply(this, Array.prototype.slice.call(arguments, 2));
 });
 
 /**
