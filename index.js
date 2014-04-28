@@ -111,7 +111,7 @@ Collector.readable('expose', function expose(probe, registry) {
     //
     // Clone before emitting, so external listeners cannot polute data storage.
     //
-    clone = JSON.parse(JSON.stringify(data));
+    clone = collector.clone(data);
     collector.emit('probe::ran', null, clone);
     collector.emit('probe::ran::' + probe.name, null, clone);
     debug('[npm-probe] emit `ran` for probe: %s at %s', probe.name, end);
