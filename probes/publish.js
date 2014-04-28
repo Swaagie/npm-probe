@@ -189,7 +189,7 @@ Probe.transform = function transform(memo, probe, i, stack) {
  * @api private
  */
 Probe.latest = function latest(transformed, plain) {
-  return transformed[transformed.length - 1];
+  return transformed[transformed.length - 1].values.percentage;
 };
 
 /**

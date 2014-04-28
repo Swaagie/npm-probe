@@ -108,7 +108,24 @@ Probe.transform = function transform(memo, probe, i, stack) {
  * @api private
  */
 Probe.latest = function latest(transformed, plain) {
-  return transformed[transformed.length - 1];
+  var last = transformed[transformed.length - 1]
+    , cur = plain[plain.length - 1];
+
+  //
+  // Lag of zero indicates down status.
+  //
+  if (last.mean === 0) return 'down';
+
+  //
+  // If the current measurement was slower than 2 times the moving average
+  // standard deviation report it as slow.
+  //
+  if (cur.results.mean - (2 * last.values.stdev) > last.values.mean) return 'slow';
+
+  //
+  // Return last value normally.
+  //
+  return last.values.mean;
 };
 
 /**
