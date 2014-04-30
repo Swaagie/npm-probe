@@ -19,7 +19,7 @@ var base = path.join(__dirname, 'probes')
  * Collector instance, can be provided with following options.
  *  - probes {Array}: probes to use
  *  - cache {Object}: cache instance on which set(key, value, ttl) can be called
- *  - silent {Boolean}: if true do not aquire data
+ *  - silent {Boolean}: if false (default) acquire data
  *
  * @constructor
  * @param {Object} options
