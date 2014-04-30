@@ -77,38 +77,41 @@ require('npm-probe').create(
 
 #### Probe.prototype.execute
 
-@param {Object} endpoint URL parsed endpoint.
-@param {Function} done Completion callback.
-@api public
+Actual logic that gets executed whenever the timing schedule triggers a run.
+
+- @param {Object} endpoint URL parsed endpoint.
+- @param {Function} done Completion callback.
+- @api public
 
 #### Probe.transform
 
-Return transformed data, this can be
+Return transformed data, this can be done via grouping or calculating moving
+averages or any other map reduce methodology.
 
-@param {Object} memo Data.
-@param {Object} probe Measurements of single probe.
-@param {Number} i Current iteration.
-@param {Array} stack Complete serie of measurements.
-@returns {object} altered memo
+- @param {Object} memo Data.
+- @param {Object} probe Measurements of single probe.
+- @param {Number} i Current iteration.
+- @param {Array} stack Complete serie of measurements.
+- @returns {object} altered memo
 
 #### Probe.latest
 
 Return the value that should be used as latest value.
 
-@param {Array} transformed Data transformed with transform
-@param {Array} plain Orginal data.
-@returns {Mixed} string or numeric value
+- @param {Array} transformed Data transformed with transform
+- @param {Array} plain Orginal data.
+- @returns {Mixed} string or numeric value
 
 #### Probe.group
 
 Group functionality by time, group per millisecond, hour or day.
 
-@param {Number} time Unix timestamp.
-@returns {Number} Unique identifier for the group.
+- @param {Number} time Unix timestamp.
+- @returns {Number} Unique identifier for the group.
 
 #### Probe.group
 
-@type {Object} Default representation of grouped results.
+- @type {Object} Default representation of grouped results.
 
 [fusing]: https://github.com/bigpipe/fusing
 [npmjs.org registry]: http://registry.npmjs.org/
