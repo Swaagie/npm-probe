@@ -59,8 +59,8 @@ provide unit tests with each change.
 git clone git@github.com:Moveo/npm-probe.git
 ```
 
-If you like to design a custom probe, not that the following methods should be
-available on the Constructor and API of the probe. The parameters will be provided
+If you like to design a custom probe, note that the following methods should be
+available on the API of the probe. The parameters will be provided
 from the main `Collector` instance. In addition to that [fusing] is available to
 create read-only properties on the probe.
 
