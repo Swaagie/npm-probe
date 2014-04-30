@@ -160,8 +160,9 @@ Collector.readable('initialize', function initialize() {
   (function updater(init) {
     debug('[npm-probe] updating the feed cache');
 
-    request(feed, function done(error, response, body) {
+    request({ uri: feed, timeout: 5E3 }, function done(error, response, body) {
       if (error || response.statusCode !== 200) {
+        setTimeout(updater, 18E4);
         return collector.emit('error', new Error('[npm-probe] failed to updated feed'));
       }
 
