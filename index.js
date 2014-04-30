@@ -173,7 +173,7 @@ Collector.readable('initialize', function initialize() {
       //
       // Add the probes only on the first run after a succeful cache feed.
       //
-      if (init) {
+      if (init && probes) {
         debug('[npm-probe] initializing with %s probes', probes.length);
         Array.prototype.push.apply(collector.probes, probes.map(function map(probe) {
           return collector.use(probe);

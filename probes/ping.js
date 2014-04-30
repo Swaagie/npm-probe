@@ -43,7 +43,7 @@ fuse(Probe, require('events').EventEmitter);
  */
 Probe.readable('ping', function ping(endpoint, next) {
   var start = Date.now()
-    , timeout = 3E4;
+    , timeout = endpoint.timeout || 3E4;
 
   request({ uri: endpoint.href, timeout: timeout }, function resp(error, response) {
     //
@@ -81,8 +81,11 @@ Probe.readable('execute', function execute(endpoint, done) {
  * Calculate the moving average for the provided data with n steps.
  * Defaults to 5 steps.
  *
- * @param {Number} n Amount of steps.
- * @return {Array} Moving average per step.
+ * @param {Object} memo Data.
+ * @param {Object} probe Measurements of single probe.
+ * @param {Number} i Current iteration.
+ * @param {Array} stack Complete serie of measurements.
+ * @return {object} memo with moving average calculations.
  * @api private
  */
 Probe.transform = function transform(memo, probe, i, stack) {
@@ -114,7 +117,7 @@ Probe.latest = function latest(transformed, plain) {
   //
   // Lag of zero indicates down status.
   //
-  if (last.mean === 0) return 'down';
+  if (last.values.mean === 0) return 'down';
 
   //
   // If the current measurement was slower than 2 times the moving average
