@@ -1,7 +1,6 @@
 'use strict';
 
 var url = require('url')
-  , fuse = require('fusing')
   , async = require('async')
   , request = require('request')
   , schedule = require('node-schedule');
@@ -18,32 +17,12 @@ var day = 864E5
       "week⁺": 7 * day
     };
 
-/**
- * Probe constructor.
- *
- * @constructor
- * @param {Collector} collector instance
- * @api public
- */
-function Probe(collector) {
-  this.fuse();
-
-  //
-  // Name of the probe and the registries the probe should run against.
-  //
-  this.readable('name', 'delta');
-  this.readable('collector', collector);
-  this.readable('list', Object.keys(require('../registries')));
-
-  //
-  // Delta on latest 25 feeds will be ran every 10 minutes.
-  //
-  this.readable('spec', {
-    minute: new schedule.Range(0, 60, interval / 6E4)
-  });
-}
-
-fuse(Probe, require('events').EventEmitter);
+//
+// Probe constructor.
+//
+var Probe = require('./probe')('delta', {
+  minute: new schedule.Range(0, 60, interval / 6E4)
+});
 
 //
 // Set of functions to check the equality of a and b for set of keys.

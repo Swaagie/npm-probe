@@ -304,6 +304,11 @@ Collector.probes = fs.readdirSync(__dirname + '/probes').reduce(function reduce(
 }, {});
 
 //
+// Factory method for constructing Probe instances.
+//
+Collector.create = require('./probes/probe');
+
+//
 // Export the Collector.
 //
 module.exports = Collector;

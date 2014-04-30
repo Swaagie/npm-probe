@@ -1,37 +1,10 @@
 'use strict';
 
 var url = require('url')
-  , fuse = require('fusing')
   , async = require('async')
   , request = require('request')
-  , schedule = require('node-schedule');
-
-/**
- * Probe constructor.
- *
- * @constructor
- * @param {Collector} collector instance
- * @api public
- */
-function Probe(collector) {
-  this.fuse();
-
-  //
-  // Name of the probe and the registries the probe should run against.
-  //
-  this.readable('name', 'ping');
-  this.readable('collector', collector);
-  this.readable('list', Object.keys(require('../registries')));
-
-  //
-  // Ping the mirrors every minute.
-  //
-  this.readable('spec', {
-    minute: new schedule.Range(0, 60, 1)
-  });
-}
-
-fuse(Probe, require('events').EventEmitter);
+  , schedule = require('node-schedule')
+  , Probe = require('./probe')('ping', { minute: new schedule.Range(0, 60, 1) });
 
 /**
  * Ping the endpoint by doing a regular request. Not all registries support ICMP by
@@ -60,8 +33,8 @@ Probe.readable('ping', function ping(endpoint, next) {
 /**
  * Ping the endpoint 5 times and get the averaged results from those pings.
  *
- * @param {Object} endpoint url parsed endpoint
- * @param {Function} done completion callback.
+ * @param {Object} endpoint URL parsed endpoint.
+ * @param {Function} done Completion callback.
  * @api public
  */
 Probe.readable('execute', function execute(endpoint, done) {
@@ -107,7 +80,7 @@ Probe.transform = function transform(memo, probe, i, stack) {
  *
  * @param {Array} transformed Data transformed with transform
  * @param {Array} plain Orginal data.
- * @returns {Object}
+ * @returns {Mixed}
  * @api private
  */
 Probe.latest = function latest(transformed, plain) {
