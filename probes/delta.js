@@ -209,19 +209,20 @@ Probe.transform = function transform(memo, probe, i, stack) {
     //
     // Provide all intervals on the same day with summed hours count.
     //
-    memo[i].days += days || probe.results.lag.mean / 864E5;
+    memo[i].days += days || probe.results.lag.mean / day;
 
     //
     // Current found interval is correct, stop processing before updating again.
+    // Check if the interval is undefined as it can also be 0, e.g. no lag.
     //
-    if (interval) return;
+    if ('undefined' !== typeof interval) return;
     if (probe.results.lag.mean <= intervals[key]) interval = i;
   });
 
   //
   // Update the occurence of the interval and add the modules for reference.
   //
-  if (!interval) interval = position.length - 1;
+  if ('undefined' === typeof interval) interval = position.length - 1;
   memo[interval].n++;
 
   if (Array.isArray(probe.results.modules)) {
