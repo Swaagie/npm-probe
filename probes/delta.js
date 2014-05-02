@@ -209,7 +209,7 @@ Probe.transform = function transform(memo, probe, i, stack) {
     //
     // Provide all intervals on the same day with summed hours count.
     //
-    memo[i].days += days || probe.results.lag.mean / day;
+    memo[i].days += probe.results.lag.mean / day / (probe.results.modules.length || 1);
 
     //
     // Current found interval is correct, stop processing before updating again.
