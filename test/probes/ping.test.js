@@ -73,6 +73,8 @@ describe('Probe: ping', function () {
 
   describe('#execute', function () {
     it('will emit results when executed', function (done) {
+      this.timeout(1E4);
+
       probe.on('ping::executed', function (results) {
         expect(results).to.be.an('object');
         expect(results).to.have.property('mean');
