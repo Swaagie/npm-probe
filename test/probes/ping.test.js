@@ -62,6 +62,7 @@ describe('Probe: ping', function () {
     });
 
     it('will return the lag in milliseconds as result', function (done) {
+      this.timeout(1E4);
       probe.ping(registries.nodejitsu, function (error, result) {
         expect(error).to.be.equal(null);
         expect(result).to.be.a('number');
@@ -86,6 +87,7 @@ describe('Probe: ping', function () {
     });
 
     it('returns statistics of the 5 consequtive pings in milleseconds', function (done) {
+      this.timeout(1E4);
       probe.execute(registries.nodejitsu, function (error, results) {
         expect(error).to.equal(null);
         expect(results).to.be.an('object');
