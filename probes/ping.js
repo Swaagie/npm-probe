@@ -93,10 +93,10 @@ Probe.latest = function latest(transformed, plain) {
   if (last.values.mean === 0) return 'down';
 
   //
-  // If the current measurement was slower than 2 times the moving average
-  // standard deviation report it as slow.
+  // If the current measurement is 1.5 times slower than the previous
+  // moving average report it as slow.
   //
-  if (cur.results.mean - (2 * last.values.stdev) > last.values.mean) return 'slow';
+  if (cur.results.mean > last.values.mean * 1.5) return 'slow';
 
   //
   // Return last value normally.
