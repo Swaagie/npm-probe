@@ -53,10 +53,11 @@ describe('Probe: ping', function () {
       });
     });
 
-    it('will return an error on failure', function (done) {
+    it('will return 0 as lag on failure', function (done) {
       probe.ping({ href: 'aaabbbccc' }, function (error, result) {
-        expect(error).to.be.an.instanceof(Error);
-        expect(error.message).to.include('ping failed');
+        expect(error).to.equal(null);
+        expect(result).to.be.an('number');
+        expect(result).to.equal(0);
         done();
       });
     });

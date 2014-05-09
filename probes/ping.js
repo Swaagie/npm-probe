@@ -20,12 +20,10 @@ Probe.readable('ping', function ping(endpoint, next) {
 
   request({ uri: endpoint.href, timeout: timeout }, function resp(error, response) {
     //
-    // If the registry takes longer than the allowed timeout, return 0.
+    // If the registry takes longer than the timeout or errors out, return 0.
     // Theoretically this lag is impossible, allowing it to be processed correctly.
     //
-    if (error && error.code === 'ETIMEDOUT') return next(null, 0);
-    if (error || response.statusCode !== 200) return next(new Error('ping failed'));
-
+    if (error || response.statusCode !== 200) return next(null, 0);
     next(null, Date.now() - start);
   });
 });
