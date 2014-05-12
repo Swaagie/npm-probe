@@ -24,6 +24,12 @@ Active execution of the probes can be prevented by setting the following
 environment variable: `PROBE=silent`. This allows you to use the collector as
 static instance to access cache or other methods.
 
+### Registries
+
+Providing an alternative or reduced list of registries is possible by setting
+`options.registries`. The list should be an object with unique registry names,
+see `registries.json` for an example.
+
 ### Probes
 
 #### npm-probe: ping

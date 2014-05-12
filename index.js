@@ -20,6 +20,7 @@ var base = path.join(__dirname, 'probes')
  *  - probes {Array}: probes to use
  *  - cache {Object}: cache instance on which set(key, value, ttl) can be called
  *  - silent {Boolean}: if false (default) acquire data
+ *  - registries {Object}: Alternative list of registries by name.
  *
  * @constructor
  * @param {Object} options
@@ -36,6 +37,11 @@ function Collector(options) {
   this.writable('probes', []);
   this.readable('options', options || {});
   this.readable('cache', this.options.cache || null);
+
+  //
+  // Expose the registries available for data collection.
+  //
+  this.readable('registries', this.options.registries || registries);
 
   //
   // Add optional error event listener provided via options.
@@ -72,7 +78,7 @@ Collector.readable('use', function use(Probe) {
     collector.emit('probe::scheduled', probe.name, Date.now());
 
     return schedule.scheduleJob(probe.name, probe.spec, function execute() {
-      probe.execute(registries[endpoint], collector.expose(probe, endpoint));
+      probe.execute(collector.registries[endpoint], collector.expose(probe, endpoint));
     });
   });
 });
