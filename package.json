@@ -1,6 +1,6 @@
 {
   "name": "npm-probe",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Probe npm registries for statistics",
   "main": "index.js",
   "scripts": {
