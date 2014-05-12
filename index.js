@@ -74,7 +74,7 @@ Collector.readable('use', function use(Probe) {
   if (!probe.name || !probe.spec || 'function' !== typeof probe.execute) return;
 
   return probe.list.map(function map(endpoint) {
-    debug('[npm-probe] added probe %s for registry: %s', probe.name, endpoint);
+    debug('added probe %s for registry: %s', probe.name, endpoint);
     collector.emit('probe::scheduled', probe.name, Date.now());
 
     return schedule.scheduleJob(probe.name, probe.spec, function execute() {
@@ -95,13 +95,13 @@ Collector.readable('expose', function expose(probe, registry) {
   var start = Date.now()
     , collector = this;
 
-  debug('[npm-probe] provide callback for probe: %s at %s', probe.name, start);
+  debug('provide callback for probe: %s at %s', probe.name, start);
   return function ran(error, data) {
     var end = Date.now()
       , clone;
 
     if (error) {
-      debug('[npm-probe] emit `error` for probe: %s/%s at %s', registry, probe.name, end);
+      debug('emit `error` for probe: %s/%s at %s', registry, probe.name, end);
       return collector.emit('probe::error', error);
     }
 
@@ -120,14 +120,14 @@ Collector.readable('expose', function expose(probe, registry) {
     clone = collector.clone(data);
     collector.emit('probe::ran', null, clone);
     collector.emit('probe::ran::' + probe.name, null, clone);
-    debug('[npm-probe] emit `ran` for probe: %s at %s', probe.name, end);
+    debug('emit `ran` for probe: %s at %s', probe.name, end);
 
     //
     // Optionally cache the results in provided cache layer.
     //
     if (!collector.cache || 'function' !== typeof collector.cache.set) return;
     collector.cache.set(collector.key(data), data, function done() {
-      debug('[npm-probe] data cached in key: %s', collector.key(data));
+      debug('data cached in key: %s', collector.key(data));
     });
   };
 });
@@ -164,7 +164,7 @@ Collector.readable('initialize', function initialize() {
   // Update the cached data every 3 minutes.
   //
   (function updater(init) {
-    debug('[npm-probe] updating the feed cache');
+    debug('updating the feed cache');
 
     request({ uri: feed, timeout: 5E3 }, function done(error, response, body) {
       if (error || response.statusCode !== 200) {
@@ -174,14 +174,14 @@ Collector.readable('initialize', function initialize() {
 
       try {
         collector.feed = JSON.parse(body).results;
-        debug('[npm-probe] succesfully updated the feed cache');
+        debug('succesfully updated the feed cache');
       } catch(e) { collector.emit('error', e); }
 
       //
       // Add the probes only on the first run after a succeful cache feed.
       //
       if (init && probes) {
-        debug('[npm-probe] initializing with %s probes', probes.length);
+        debug('initializing with %s probes', probes.length);
         Array.prototype.push.apply(collector.probes, probes.map(function map(probe) {
           return collector.use(probe);
         }));
