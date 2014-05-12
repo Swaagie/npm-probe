@@ -119,6 +119,11 @@ Probe.group = function group(time) {
 Probe.map = {};
 
 //
+// Which registries should the probe run against.
+//
+Probe.list = Object.keys(require('../registries'));
+
+//
 // Export the probe.
 //
 module.exports = Probe;

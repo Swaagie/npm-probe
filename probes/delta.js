@@ -12,16 +12,16 @@ var day = 864E5
   , interval = 6E5
   , intervals = {
       none: 0,
+      minute: interval / 10,
       hour: day / 24,
-      day: day,
-      "week⁺": 7 * day
+      "day⁺": day
     };
 
 //
 // Probe constructor.
 //
 var Probe = require('./probe')('delta', {
-  minute: new schedule.Range(0, 60, interval / 6E4)
+  minute: new schedule.Range(0, 60, intervals.minute * 10)
 });
 
 //
@@ -46,7 +46,6 @@ Probe.readable('equal', {
 
   //
   // Unpublished modules will have no versions, modified time should be equal.
-  // In addition, modules will be checked for the presence of `time.unpublished`.
   //
   'versions': function versions(a, b) {
     if (!a || !b) return false;
@@ -57,13 +56,6 @@ Probe.readable('equal', {
     return a.length === b.length && a.reduce(function has(memo, item) {
       return memo && ~b.indexOf(item);
     }, true);
-  },
-
-  //
-  // Unpublished modules will have no distributions, modified time should be equal.
-  //
-  'dist-tags': function latest(a, b) {
-    return a && b && a.latest === b.latest;
   }
 });
 
@@ -77,7 +69,7 @@ Probe.readable('equal', {
  * @api private
  */
 Probe.readable('lag', function lag(different, origin, variation) {
-  var mirror = 0
+  var now = 0
     , main = 0;
 
   //
@@ -85,23 +77,20 @@ Probe.readable('lag', function lag(different, origin, variation) {
   // to module creation. Otherwise calculate the difference between modified.
   //
   if (different) {
-    if (origin && variation) {
-      main = (new Date(origin.time.modified)).getTime();
-      mirror = (new Date(variation.time.modified)).getTime();
-    }
-
-    if (!variation) {
-      main = (new Date(origin.time.created)).getTime();
-      mirror = Date.now();
-    }
+    now = Date.now();
+    main = new Date('unpublished' in origin.time
+      ? origin.time.unpublished.time
+      : origin.time.modified
+    ).getTime();
   }
 
   //
   // Return absolute lag in msec.
   //
   return {
+    missing: !variation,
     module: origin.name,
-    lag: Math.abs(mirror - main)
+    lag: Math.abs(now - main)
   };
 });
 
@@ -181,8 +170,13 @@ Probe.readable('execute', function execute(endpoint, done) {
       lag.push(test.lag);
     });
 
-    result = { modules: filtered, lag: probe.collector.calculate(lag) };
-    probe.emit('ping::executed', result);
+    result = {
+      lag: probe.collector.calculate(lag),
+      n: probe.collector.feed.length,
+      modules: filtered
+    };
+
+    probe.emit('delta::executed', result);
     done(null, result);
   });
 });
@@ -197,8 +191,7 @@ Probe.readable('execute', function execute(endpoint, done) {
  */
 Probe.transform = function transform(memo, probe, i, stack) {
   var position = Object.keys(intervals)
-    , interval
-    , days;
+    , interval;
 
   //
   // Return duration as string for results.
@@ -207,9 +200,9 @@ Probe.transform = function transform(memo, probe, i, stack) {
     if (!probe.results || !probe.results.lag) return;
 
     //
-    // Provide all intervals on the same day with summed hours count.
+    // Provide all intervals on the same day with latest minute count.
     //
-    memo[i].days += probe.results.lag.mean / day / (probe.results.modules.length || 1);
+    memo[i].lag = probe.results.lag.mean / intervals.hour;
 
     //
     // Current found interval is correct, stop processing before updating again.
@@ -223,17 +216,8 @@ Probe.transform = function transform(memo, probe, i, stack) {
   // Update the occurence of the interval and add the modules for reference.
   //
   if ('undefined' === typeof interval) interval = position.length - 1;
+
   memo[interval].n++;
-
-  if (Array.isArray(probe.results.modules)) {
-    Array.prototype.push.apply(
-      memo[interval].modules,
-      probe.results.modules.map(function map(module) {
-        if (!~memo[interval].modules.indexOf(module)) return module;
-      }).filter(Boolean)
-    );
-  }
-
   return memo;
 };
 
@@ -246,7 +230,7 @@ Probe.transform = function transform(memo, probe, i, stack) {
  * @api private
  */
 Probe.latest = function latest(transformed, plain) {
-  return transformed[transformed.length - 1].values.days;
+  return transformed[transformed.length - 1].values.lag;
 };
 
 /**
@@ -265,9 +249,8 @@ Probe.group = function group(time) {
 //
 Probe.map = Object.keys(intervals).map(function map(key) {
   return {
-    modules: [],
     type: key,
-    days: 0,
+    lag: 0,
     n: 0
   };
 });
@@ -276,6 +259,11 @@ Probe.map = Object.keys(intervals).map(function map(key) {
 // Expose the intervals that are used by default.
 //
 Probe.intervals = intervals;
+
+//
+// Which registries should the probe run against.
+//
+Probe.list = Object.keys(require('../registries'));
 
 //
 // Export the probe.

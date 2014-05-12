@@ -217,6 +217,11 @@ Probe.map = ['failure', 'success'].map(function map(key) {
 });
 
 //
+// Which registries should the probe run against.
+//
+Probe.list = [ 'npmjs' ];
+
+//
 // Export the probe.
 //
 module.exports = Probe;
