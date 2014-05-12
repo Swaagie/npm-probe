@@ -94,7 +94,7 @@ Probe.latest = function latest(transformed, plain) {
   // If the current measurement is 1.5 times slower than the previous
   // moving average report it as slow.
   //
-  if (cur.results.mean > last.values.mean * 1.5) return 'slow';
+  if (cur.results.mean > last.values.maximum * 1.5) return 'slow';
 
   //
   // Return last value normally.

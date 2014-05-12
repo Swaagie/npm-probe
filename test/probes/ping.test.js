@@ -46,7 +46,7 @@ describe('Probe: ping', function () {
 
       this.timeout(2E4);
       probe.ping({ href: 'https://www.unreachable.com', timeout: 1E4 }, function (error, result) {
-        expect(Date.now() - start).to.be.above(1E4);
+        expect(Date.now() - start).to.be.above(9999);
         expect(error).to.equal(null);
         expect(result).to.equal(0);
         done();
@@ -159,10 +159,10 @@ describe('Probe: ping', function () {
       expect(last).to.equal('down');
     });
 
-    it('returns slow if the measurement is higher than 2x the standard deviation', function () {
+    it('returns slow if the measurement is higher than 1.5x the maximum', function () {
       var last = Probe.latest(
-        [{ values: { mean: 10, stdev: 5 }}],
-        [{ results: { mean: 200, stdev: 100 }}]
+        [{ values: { mean: 50, maximum: 100 }}],
+        [{ results: { mean: 200, maximum: 400 }}]
       );
 
       expect(last).to.be.a('string');

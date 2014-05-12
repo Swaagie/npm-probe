@@ -205,12 +205,12 @@ Collector.readable('calculate', function calculate(data) {
   }, 0) / data.length;
 
   return {
-    mean: mean,
-    minimum: Math.min.apply(null, data),
-    maximum: Math.max.apply(null, data),
-    stdev: Math.sqrt(data.reduce(function deviation(dev, current) {
+    mean: Math.round(mean),
+    minimum: Math.round(Math.min.apply(null, data)),
+    maximum: Math.round(Math.max.apply(null, data)),
+    stdev: Math.round(Math.sqrt(data.reduce(function deviation(dev, current) {
       return dev + Math.pow(current - mean, 2);
-    }, 0) / (data.length - 1))
+    }, 0) / (data.length - 1)))
   };
 });
 

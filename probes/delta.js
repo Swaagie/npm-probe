@@ -202,7 +202,7 @@ Probe.transform = function transform(memo, probe, i, stack) {
     //
     // Provide all intervals on the same day with latest minute count.
     //
-    memo[i].lag = probe.results.lag.mean / intervals.hour;
+    memo[i].lag = Math.round(probe.results.lag.mean / intervals.hour);
 
     //
     // Current found interval is correct, stop processing before updating again.
