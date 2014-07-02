@@ -1,6 +1,6 @@
 {
   "name": "npm-probe",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "Probe npm registries for statistics",
   "main": "index.js",
   "scripts": {
@@ -27,21 +27,20 @@
   },
   "homepage": "https://github.com/Moveo/npm-probe",
   "dependencies": {
-    "async": "~0.8.0",
-    "debug": "~0.8.0",
-    "fusing": "~0.2.1",
-    "node-schedule": "~0.1.13",
+    "async": "~0.9.0",
+    "debug": "~1.0.2",
+    "fusing": "~0.3.0",
     "npm": "~1.4.10",
-    "request": "~2.34.0"
+    "request": "~2.36.0"
   },
   "devDependencies": {
     "chai": "~1.9.0",
     "coveralls": "~2.10.0",
     "istanbul": "~0.2.6",
-    "mocha": "~1.18.0",
+    "mocha": "~1.20.0",
     "mocha-lcov-reporter": "~0.0.1",
     "pre-commit": "~0.0.4",
-    "sinon": "~1.9.1",
+    "sinon": "~1.10.2",
     "sinon-chai": "~2.5.0"
   }
 }
