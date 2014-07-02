@@ -1,10 +1,10 @@
 'use strict';
 
-var url = require('url')
+var ms = require('ms')
+  , url = require('url')
   , async = require('async')
   , request = require('request')
-  , schedule = require('node-schedule')
-  , Probe = require('./probe')('ping', { minute: new schedule.Range(0, 60, 1) });
+  , Probe = require('./probe')('ping', ms('1 minute'));
 
 /**
  * Ping the endpoint by doing a regular request. Not all registries support ICMP by
@@ -16,7 +16,7 @@ var url = require('url')
  */
 Probe.readable('ping', function ping(endpoint, next) {
   var start = Date.now()
-    , timeout = endpoint.timeout || 3E4;
+    , timeout = endpoint.timeout || ms('30 seconds');
 
   request({ uri: endpoint.href, timeout: timeout }, function resp(error, response) {
     //

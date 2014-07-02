@@ -1,12 +1,12 @@
 'use strict';
 
-var fs = require('fs')
+var ms = require('ms')
+  , fs = require('fs')
   , url = require('url')
   , path = require('path')
   , fuse = require('fusing')
   , async = require('async')
   , request = require('request')
-  , schedule = require('node-schedule')
   , debug = require('debug')('npm-probe');
 
 //
@@ -58,7 +58,7 @@ fuse(Collector, require('events').EventEmitter);
 /**
  * Register a probe to be used against the known registries.
  *
- * @param {Object} probe Valid probe object having name, spec and execute as keys.
+ * @param {Object} probe Valid probe object having name, interval and execute as keys.
  * @returns {Array} List of probes that can be added to the stack.
  * @api public
  */
@@ -67,19 +67,19 @@ Collector.readable('use', function use(Probe) {
     , probe;
 
   //
-  // Any provided probe should have a valid name, specification and function to
+  // Any provided probe should have a valid name, interval and function to
   // execute. Simply ignore probes which are invalid.
   //
   probe = new Probe(collector);
-  if (!probe.name || !probe.spec || 'function' !== typeof probe.execute) return;
+  if (!probe.name || !probe.interval || 'function' !== typeof probe.execute) return;
 
   return probe.list.map(function map(endpoint) {
     debug('added probe %s for registry: %s', probe.name, endpoint);
     collector.emit('probe::scheduled', probe.name, Date.now());
 
-    return schedule.scheduleJob(probe.name, probe.spec, function execute() {
+    return setInterval(function execute() {
       probe.execute(collector.registries[endpoint], collector.expose(probe, endpoint));
-    });
+    }, probe.interval);
   });
 });
 
@@ -158,6 +158,7 @@ Collector.readable('key', function key(data) {
 Collector.readable('initialize', function initialize() {
   var feed = url.format(this.changes)
     , probes = this.options.probes
+    , timeout = ms('3 minutes')
     , collector = this;
 
   //
@@ -166,9 +167,9 @@ Collector.readable('initialize', function initialize() {
   (function updater(init) {
     debug('updating the feed cache');
 
-    request({ uri: feed, timeout: 5E3 }, function done(error, response, body) {
+    request({ uri: feed, timeout: ms('5 seconds') }, function done(error, response, body) {
       if (error || response.statusCode !== 200) {
-        setTimeout(updater, 18E4);
+        setTimeout(updater, timeout);
         return collector.emit('error', new Error('[npm-probe] failed to updated feed'));
       }
 
@@ -187,7 +188,7 @@ Collector.readable('initialize', function initialize() {
         }));
       }
 
-      setTimeout(updater, 18E4);
+      setTimeout(updater, timeout);
     });
   })(process.env.PROBE !== 'silent' && !this.options.silent);
 });

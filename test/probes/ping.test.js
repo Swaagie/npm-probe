@@ -18,20 +18,16 @@ describe('Probe: ping', function () {
     probe = null;
   });
 
-  it('exposes properties name, spec and execute', function () {
+  it('exposes properties name, interval and execute', function () {
     expect(probe).to.have.property('name', 'ping');
-    expect(probe).to.have.property('spec');
-    expect(probe.spec).to.be.an('object');
+    expect(probe).to.have.property('interval');
+    expect(probe.interval).to.be.an('number');
     expect(probe).to.have.property('execute');
     expect(probe.execute).to.be.a('function');
   });
 
   it('has specifications to probe endpoint every 1 minute', function () {
-    expect(probe.spec).to.have.property('minute');
-    expect(probe.spec.minute).to.be.an('object');
-    expect(probe.spec.minute).to.have.property('start', 0);
-    expect(probe.spec.minute).to.have.property('end', 60);
-    expect(probe.spec.minute).to.have.property('step', 1);
+    expect(probe.interval).to.equal(60000);
   });
 
   it('has default map reference that can used to store results', function () {

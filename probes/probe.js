@@ -6,11 +6,11 @@ var fuse = require('fusing');
  * Factory method for probes.
  *
  * @param {String} name Probe name.
- * @param {Object} spec Timing specifications.
+ * @param {Number} interval Timing specifications.
  * @returns {Probe} fused constructor
  * @api private
  */
-module.exports = function factory(name, spec) {
+module.exports = function factory(name, interval) {
   /**
    * Probe constructor.
    *
@@ -32,7 +32,7 @@ module.exports = function factory(name, spec) {
     //
     // How often should the probe run.
     //
-    this.readable('spec', spec);
+    this.readable('interval', interval);
   }
 
   //

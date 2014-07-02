@@ -1,16 +1,16 @@
 'use strict';
 
-var fs = require('fs')
+var ms = require('ms')
+  , fs = require('fs')
   , npm = require('npm')
   , path = require('path')
   , fuse = require('fusing')
-  , request = require('request')
-  , schedule = require('node-schedule');
+  , request = require('request');
 
 //
 // Time interval for the probe.
 //
-var interval = 36E4;
+var interval = ms('6 minutes');
 
 /**
  * Probe constructor.
@@ -47,11 +47,9 @@ function Probe(collector) {
   this.writable('module', require(this.package));
 
   //
-  // Publish the test module every 6 minutes.
+  // Test the publish module every 6 minutes.
   //
-  this.readable('spec', {
-    minute: new schedule.Range(0, 60, interval / 6E4)
-  });
+  this.readable('interval', interval);
 }
 
 fuse(Probe, require('events').EventEmitter);
@@ -118,7 +116,7 @@ Probe.readable('update', function update(specs) {
   // days that have passed since the beginning of the year.
   //
   specs = JSON.parse(specs)['dist-tags'].latest.split('.').map(Number);
-  days = Math.ceil((now - new Date(specs[0], 0, 1)) / 864E5);
+  days = Math.ceil((now - new Date(specs[0], 0, 1)) / ms('1 day'));
 
   //
   // Update the processed data where the semver will follow
@@ -160,7 +158,7 @@ Probe.readable('process', function process(error, result) {
  */
 Probe.transform = function transform(memo, probe, i, stack) {
   var day = new Date().setHours(0, 0, 0, 0)
-    , diff = probe.start > day ? probe.start - day : 864E5
+    , diff = probe.start > day ? probe.start - day : ms('1 day')
     , done = Math.floor(diff / interval)
     , state = +probe.results.published;
 

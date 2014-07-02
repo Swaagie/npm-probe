@@ -1,15 +1,15 @@
 'use strict';
 
-var url = require('url')
+var ms = require('ms')
+  , url = require('url')
   , async = require('async')
-  , request = require('request')
-  , schedule = require('node-schedule');
+  , request = require('request');
 
 //
 // Time interval for the probe and interval cutoffs in milliseconds.
 //
-var day = 864E5
-  , interval = 6E5
+var day = ms('1 day')
+  , interval = ms('10 minutes')
   , intervals = {
       none: 0,
       minute: interval / 10,
@@ -20,9 +20,7 @@ var day = 864E5
 //
 // Probe constructor.
 //
-var Probe = require('./probe')('delta', {
-  minute: new schedule.Range(0, 60, intervals.minute * 10)
-});
+var Probe = require('./probe')('delta', interval);
 
 //
 // Set of functions to check the equality of a and b for set of keys.
