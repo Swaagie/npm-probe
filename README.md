@@ -1,4 +1,6 @@
 # npm-probe [![Build Status][status]](https://travis-ci.org/Moveo/npm-probe) [![NPM version][npmimgurl]](http://npmjs.org/package/npm-probe) [![Coverage Status][coverage]](http://coveralls.io/r/Moveo/npm-probe?branch=master)
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/Swaagie/npm-probe.svg)](https://greenkeeper.io/)
 Probe npm registries for statistics
 
 [status]: https://travis-ci.org/Moveo/npm-probe.png?branch=master
